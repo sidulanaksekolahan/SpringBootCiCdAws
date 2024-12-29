@@ -6,9 +6,34 @@ on:
       - master
 
 jobs:
-  build:
+  build_and_test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      # Step 1: Checkout the code from the repository
+      - name: Checkout code
         uses: actions/checkout@v4
+
+      # Step 2: Set up Java (adjust the version based on your project)
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Step 3: Cache Maven dependencies (optional for faster builds)
+      - name: Cache Maven Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-
+
+      # Step 4: Run Unit Tests
+      - name: Run tests
+        run: mvn test
+
+      # Step 5: Build the JAR file
+      - name: Build JAR file
+        run: mvn clean package
