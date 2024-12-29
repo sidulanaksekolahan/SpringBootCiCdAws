@@ -67,6 +67,10 @@ jobs:
       - name: Pull image from Docker Hub
         run: docker pull mirfanduri/springbootcicdaws:latest
 
+      # Create env
+      - name: Recreate .env file from secret
+        run: echo "${{ secrets.SPRINGBOOT_AWS_ENV }}" > .env
+
       # Step 2: Run docker compose using environment file
       - name: Run docker compose
         run: docker compose --env-file .env up -d
