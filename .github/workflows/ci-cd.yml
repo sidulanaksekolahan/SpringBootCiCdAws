@@ -63,10 +63,23 @@ jobs:
     runs-on: [springboot-aws-ec2]
 
     steps:
-      # Step 1: Pull image from Docker Hub
+      # Step 1: Stop docker compose
+      - name: Stop docker compose
+        run: docker compose down
+
+      # Step 2: Remove old docker image
+      - name: Remove old Docker image
+        run: |
+          IMAGE_ID=$(docker images -q mirfanduri/springbootcicdaws:latest)
+          if [ -n "$IMAGE_ID" ]; then
+            echo "Removing old image: $IMAGE_ID"
+            docker rmi $IMAGE_ID || true  # 'true' to ignore error if image doesn't exist
+          fi
+
+      # Step 3: Pull image from Docker Hub
       - name: Pull image from Docker Hub
         run: docker pull mirfanduri/springbootcicdaws:latest
 
-      # Step 2: Run docker compose using environment file
+      # Step 4: Run docker compose using environment file
       - name: Run docker compose
         run: docker compose --env-file .env up -d
