@@ -68,7 +68,7 @@ jobs:
         run: docker pull mirfanduri/springbootcicdaws:latest
 
       - name: List files
-        run: ls
+        run: ls -al
 
       # Step 2: Run docker compose using environment file
 #      - name: Run docker compose
