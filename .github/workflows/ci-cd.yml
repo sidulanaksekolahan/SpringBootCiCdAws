@@ -67,6 +67,9 @@ jobs:
       - name: Pull image from Docker Hub
         run: docker pull mirfanduri/springbootcicdaws:latest
 
+      - name: List files
+        run: ls
+
       # Step 2: Run docker compose using environment file
-      - name: Run docker compose
-        run: docker compose --env-file .env up -d
+#      - name: Run docker compose
+#        run: docker compose --env-file .env up -d
