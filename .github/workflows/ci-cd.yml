@@ -57,3 +57,16 @@ jobs:
         run: |
          docker push ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:${{ env.SHORT_SHA }}
          docker push ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:latest
+
+  deploy:
+    needs: build
+    runs-on: [springboot-aws-ec2]
+
+    steps:
+      # Step 1: Pull image from Docker Hub
+      - name: Pull image from Docker Hub
+        run: docker pull mirfanduri/springbootcicdaws:latest
+
+      # Step 2: Run docker compose using environment file
+      - name: Run docker compose
+        run: docker compose --env-file .env up -d
