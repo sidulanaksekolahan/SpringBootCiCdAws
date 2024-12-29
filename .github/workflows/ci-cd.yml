@@ -1,0 +1,14 @@
+name: Java CI CD with Maven
+
+on:
+  push:
+    branches:
+      - [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
