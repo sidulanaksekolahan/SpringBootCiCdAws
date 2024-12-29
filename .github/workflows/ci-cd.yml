@@ -37,3 +37,19 @@ jobs:
       # Step 5: Build the JAR file
       - name: Build JAR file
         run: mvn clean package
+
+      # Step 6: Login to Docker Hub
+      - name: Login to Docker Hub
+        run: docker login -u ${{secret.DOCKER_USERNAME}} -p ${{secret.DOCKER_PASSWORD}}
+
+      # Step 3: Build the Docker image
+      - name: Build Docker Image
+        run: |
+         docker build -t ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:${{ github.sha }} .
+         docker tag ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:latest
+
+      # Step 4: Push the Docker image to Docker Hub
+      - name: Push Docker Image
+        run: |
+         docker push ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:${{ github.sha }}
+         docker push ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:latest
