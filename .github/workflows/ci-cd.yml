@@ -59,7 +59,7 @@ jobs:
          docker push ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:latest
 
   deploy:
-    needs: build_and_test
+    needs: build_and_test # the deploy job will wait until the build_and_test job is completed successfully.
     runs-on: [springboot-aws-ec2]
 
     steps:
