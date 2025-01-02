@@ -39,6 +39,19 @@ jobs:
                     "type": "divider"
                   }
               ]
+            },
+            {
+                "type": "divider"
+            },
+            {
+                "type": "context",
+                "elements": [
+                    {
+                        "type": "plain_text",
+                        "text": "Triggered via ${{ github.action }}",
+                        "emoji": true
+                    }
+                ]
             }
         if: always() # To ensure the Slack message is sent even if the job fails
 
