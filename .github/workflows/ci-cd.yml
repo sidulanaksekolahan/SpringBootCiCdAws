@@ -31,7 +31,7 @@ jobs:
                       },
                       {
                         "type": "mrkdwn",
-                        "text": "*${{ github.repository_owner }}*."
+                        "text": "*${{ github.repository_owner }} is starting CI CD...*"
                       }
                     ]
                   },
@@ -39,14 +39,21 @@ jobs:
                     "type": "divider"
                   },
                   {
-                      "type": "context",
-                      "elements": [
-                        {
-                          "type": "plain_text",
-                          "text": "Triggered via ${{ github.event_name }}",
-                          "emoji": true
-                        }
-                      ]
+                    "type": "rich_text",
+                    "elements": [
+                      {
+                        "type": "rich_text_section",
+                        "elements": [
+                          {
+                            "type": "text",
+                            "text": "Triggered via ${{ github.action }} from branch ${{ steps.branch-names.outputs.current_branch }}",
+                            "style": {
+                              "bold": true
+                            }
+                          }
+                        ]
+                      }
+                    ]
                   }
               ]
             }
