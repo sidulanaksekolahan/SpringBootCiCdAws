@@ -15,7 +15,7 @@ jobs:
     steps:
       # Step 1: Send starting notification
       - name: Start building docker image and push to docker hub
-        uses: slackapi/slack-github-action@v1.25.1
+        uses: slackapi/slack-github-action@v2.0.0
         with:
           payload: |
             {
