@@ -14,14 +14,14 @@ jobs:
 
     steps:
       # Step 10: Push Slack Notification
-      - name: slack - GitHub Actions Slack integration
+      - name: Starting Docker Build and Push Image
         uses: act10ns/slack@v2
         with:
           status: starting
           channel: '#springboot-cicd-github-aws'
           message: Starting Docker Build and Push...
         if: always()
-        
+
       # Step 1: Checkout the code from the repository
       - name: Checkout code
         uses: actions/checkout@v4
@@ -69,6 +69,14 @@ jobs:
         run: |
          docker push ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:${{ env.SHORT_SHA }}
          docker push ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:latest
+
+      - name: Completed Build and Push Docker image
+        uses: act10ns/slack@v2
+        with:
+          status: ${{ job.status }}
+          steps: ${{ toJson(steps) }}
+          channel: '#springboot-cicd-github-aws'
+        if: always()
 
 #  deploy:
 #    needs: build_and_test # the deploy job will wait until the build_and_test job is completed successfully.
