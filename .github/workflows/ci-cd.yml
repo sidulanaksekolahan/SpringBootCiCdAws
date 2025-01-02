@@ -13,27 +13,46 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
     steps:
-      # Step 10: Push Slack Notification
-      - name: Starting Docker Build and Push Image
-        uses: act10ns/slack@v2
+      # Step 1: Send starting notification
+      - name: Start building docker image and push to docker hub
+        uses: slackapi/slack-github-action@v1.25.1
         with:
-          status: starting
-          channel: '#springboot-cicd-github-aws'
-          message: Starting Docker Build and Push...
-        if: always()
+          payload: |
+            {
+              "blocks": [
+                  {
+                    "type": "context",
+                    "elements": [
+                      {
+                        "type": "image",
+                        "image_url": "https://avatars.githubusercontent.com/u/36037747?s=400&u=2222e4157a629a700676c524dd5ae1e3b2e0ef02&v=4",
+                        "alt_text": "picture of a person"
+                      },
+                      {
+                        "type": "mrkdwn",
+                        "text": "*${{ github.repository_owner }}*."
+                      }
+                    ]
+                  },
+                  {
+                    "type": "divider"
+                  }
+              ]
+            }
+        if: always() # To ensure the Slack message is sent even if the job fails
 
-      # Step 1: Checkout the code from the repository
+      # Step 2: Checkout the code from the repository
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Set up Java (adjust the version based on your project)
+      # Step 3: Set up Java (adjust the version based on your project)
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      # Step 3: Cache Maven dependencies (optional for faster builds)
+      # Step 4: Cache Maven dependencies (optional for faster builds)
       - name: Cache Maven Dependencies
         uses: actions/cache@v3
         with:
@@ -42,41 +61,36 @@ jobs:
           restore-keys: |
             maven-${{ runner.os }}-
 
-      # Step 4: Run Unit Tests
+      # Step 5: Run Unit Tests
       - name: Run tests
         run: mvn test
 
-      # Step 5: Build the JAR file
+      # Step 6: Build the JAR file
       - name: Build JAR file
         run: mvn clean package
 
-      # Step 6: Login to Docker Hub
+      # Step 7: Login to Docker Hub
       - name: Login to Docker Hub
         run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
 
-      # Step 7: Get short commit hash
+      # Step 8: Get short commit hash
       - name: Get short commit hash
         run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV # This appends the following line to the $GITHUB_ENV file
 
-      # Step 8: Build the Docker image
+      # Step 9: Build the Docker image
       - name: Build Docker Image
         run: |
          docker build -t ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:${{ env.SHORT_SHA }} .
          docker tag ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:${{ env.SHORT_SHA }} ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:latest
 
-      # Step 9: Push the Docker image to Docker Hub
+      # Step 10: Push the Docker image to Docker Hub
       - name: Push Docker Image
         run: |
          docker push ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:${{ env.SHORT_SHA }}
          docker push ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:latest
 
-      - name: Completed Build and Push Docker image
-        uses: act10ns/slack@v2
-        with:
-          status: ${{ job.status }}
-          steps: ${{ toJson(steps) }}
-          channel: '#springboot-cicd-github-aws'
-        if: always()
+      # Step 11: Send completed notification
+
 
 #  deploy:
 #    needs: build_and_test # the deploy job will wait until the build_and_test job is completed successfully.
