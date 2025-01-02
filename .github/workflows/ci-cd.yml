@@ -43,7 +43,7 @@ jobs:
                       "elements": [
                         {
                           "type": "plain_text",
-                          "text": "Triggered via ${{ github.action }}",
+                          "text": "Triggered via ${{ github.event_name }}",
                           "emoji": true
                         }
                       ]
