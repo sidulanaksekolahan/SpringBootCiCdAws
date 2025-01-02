@@ -17,6 +17,7 @@ jobs:
       - name: Start building docker image and push to docker hub
         uses: slackapi/slack-github-action@v2.0.0
         with:
+          webhook-type: webhook-trigger
           payload: |
             {
               "blocks": [
