@@ -60,7 +60,7 @@ jobs:
           
       # Step 10: Push Slack Notification
       - name: slack - GitHub Actions Slack integration
-      - uses: act10ns/slack@v2
+        uses: act10ns/slack@v2
         with:
           status: ${{ job.status }}
         if: always()
