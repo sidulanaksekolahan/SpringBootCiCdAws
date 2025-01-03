@@ -14,49 +14,13 @@ jobs:
 
     steps:
       # Step 1: Send starting notification
-      - name: Start building docker image and push to docker hub
-        uses: slackapi/slack-github-action@v2.0.0
+      - name: slack - GitHub Actions Slack integration
+        uses: act10ns/slack@v2.1.0
         with:
-          webhook-type: webhook-trigger
-          payload: |
-            {
-              "blocks": [
-                  {
-                    "type": "context",
-                    "elements": [
-                      {
-                        "type": "image",
-                        "image_url": "https://avatars.githubusercontent.com/u/36037747?s=400&u=2222e4157a629a700676c524dd5ae1e3b2e0ef02&v=4",
-                        "alt_text": "picture of a person"
-                      },
-                      {
-                        "type": "mrkdwn",
-                        "text": "*${{ github.repository_owner }} is starting CI CD...*"
-                      }
-                    ]
-                  },
-                  {
-                    "type": "divider"
-                  },
-                  {
-                    "type": "rich_text",
-                    "elements": [
-                      {
-                        "type": "rich_text_section",
-                        "elements": [
-                          {
-                            "type": "text",
-                            "text": "Triggered via ${{ github.event_name }} from branch ${{ github.head_ref }} - ${{ github.ref }} - ${{ github.repositoryUrl }} - ${{ github.workflow }}",
-                            "style": {
-                              "bold": true
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  }
-              ]
-            }
+          status: ${{ job.status }}
+          steps: ${{ toJson(steps) }}
+          matrix: ${{ toJson(matrix) }}
+          message: Building docker images...
         if: always() # To ensure the Slack message is sent even if the job fails
 
       # Step 2: Checkout the code from the repository
@@ -108,7 +72,10 @@ jobs:
          docker push ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:latest
 
       # Step 11: Send completed notification
-
+      - uses: act10ns/slack@v2
+        with:
+          status: ${{ job.status }}
+        if: always()
 
 #  deploy:
 #    needs: build_and_test # the deploy job will wait until the build_and_test job is completed successfully.
