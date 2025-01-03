@@ -46,7 +46,7 @@ jobs:
                         "elements": [
                           {
                             "type": "text",
-                            "text": "Triggered via ${{ github.action }} from branch ${{ steps.branch-names.outputs.current_branch }}",
+                            "text": "Triggered via ${{ github.base_ref }} from branch ${{ github.ref_name }}",
                             "style": {
                               "bold": true
                             }
