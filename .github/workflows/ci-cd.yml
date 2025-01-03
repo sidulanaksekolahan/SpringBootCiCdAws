@@ -13,22 +13,31 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
     steps:
-      # Step 1: Send starting notification
-      - name: slack - GitHub Actions Slack integration
-        uses: act10ns/slack@v2.1.0
-        with:
-          status: starting
-          steps: ${{ toJson(steps) }}
-          channel: '#workflows'
-          message: Starting Docker Build and Push...
-        if: always() # To ensure the Slack message is sent even if the job fails
+#      # Step 1: Send starting notification
+#      - name: slack - GitHub Actions Slack integration
+#        uses: act10ns/slack@v2.1.0
+#        with:
+#          status: starting
+#          channel: '#workflows'
+#          message: Starting Docker Build and Push...
+#        if: always() # To ensure the Slack message is sent even if the job fails
 
       # Step 2: Checkout the code from the repository
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Step 1: Send starting notification
+      - name: slack - GitHub Actions Slack integration
+        uses: act10ns/slack@v2.1.0
+        with:
+          status: ${{ job.status }}
+          channel: '#workflows'
+          message: Starting Docker Build and Push...
+        if: always() # To ensure the Slack message is sent even if the job fails
+
       # Step 3: Set up Java (adjust the version based on your project)
       - name: Set up JDK
+        id: setup_jdk
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -36,6 +45,7 @@ jobs:
 
       # Step 4: Cache Maven dependencies (optional for faster builds)
       - name: Cache Maven Dependencies
+        id: cache_maven_dependencies
         uses: actions/cache@v3
         with:
           path: ~/.m2/repository
@@ -45,14 +55,17 @@ jobs:
 
       # Step 5: Run Unit Tests
       - name: Run tests
+        id: run_testing
         run: mvn test
 
       # Step 6: Build the JAR file
       - name: Build JAR file
+        id: build_jar
         run: mvn clean package
 
       # Step 7: Login to Docker Hub
       - name: Login to Docker Hub
+        id: login_dockerhub
         run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
 
       # Step 8: Get short commit hash
@@ -61,12 +74,14 @@ jobs:
 
       # Step 9: Build the Docker image
       - name: Build Docker Image
+        id: build_docker_image
         run: |
          docker build -t ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:${{ env.SHORT_SHA }} .
          docker tag ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:${{ env.SHORT_SHA }} ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:latest
 
       # Step 10: Push the Docker image to Docker Hub
       - name: Push Docker Image
+        id: push_docker_image
         run: |
          docker push ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:${{ env.SHORT_SHA }}
          docker push ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:latest
@@ -77,7 +92,7 @@ jobs:
         with:
           status: ${{ job.status }}
           steps: ${{ toJson(steps) }}
-          channel: '#springboot-cicd-github-aws'
+          channel: '#workflows'
         if: always()
 
 #  deploy:
