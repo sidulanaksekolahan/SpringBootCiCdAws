@@ -127,7 +127,7 @@ jobs:
         id: run_docker_compose
         run: sudo docker compose --env-file .env up -d
 
-      # Step 11: Send completed notification
+      # Step 5: Send completed notification
       - name: slack - GitHub Actions Slack integration
         uses: act10ns/slack@v2.1.0
         with:
