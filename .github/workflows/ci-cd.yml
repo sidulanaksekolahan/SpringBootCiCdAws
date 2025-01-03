@@ -13,27 +13,17 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
     steps:
-#      # Step 1: Send starting notification
-#      - name: slack - GitHub Actions Slack integration
-#        uses: act10ns/slack@v2.1.0
-#        with:
-#          status: starting
-#          channel: '#workflows'
-#          message: Starting Docker Build and Push...
-#        if: always() # To ensure the Slack message is sent even if the job fails
-
-      # Step 2: Checkout the code from the repository
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       # Step 1: Send starting notification
       - name: slack - GitHub Actions Slack integration
         uses: act10ns/slack@v2.1.0
         with:
           status: In progress
           channel: '#workflows'
-          message: Starting Docker Build and Push...
         if: always() # To ensure the Slack message is sent even if the job fails
+
+      # Step 2: Checkout the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       # Step 3: Set up Java (adjust the version based on your project)
       - name: Set up JDK

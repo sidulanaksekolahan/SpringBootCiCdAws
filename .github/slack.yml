@@ -19,19 +19,9 @@ fallback: |-
   [GitHub] {{workflow}} #{{runNumber}} {{jobName}} is {{jobStatus}}
 
 fields:
-  <{{#if jobSteps}}
   - title: Job Steps
-    value:>
-      "{{#each jobSteps}}
-        {{#if this.outcome}}
-          {{icon this.outcome}} {{@key}}
-        {{else}}
-          ❌ No outcome for {{@key}}
-        {{/if}}
-        \n
-      {{/each}}"
+    value: "{{#each jobSteps}}{{icon this.outcome}} {{@key}}\n{{/each}}"
     short: false
-  {{/if }}>
   - title: Workflow
     value: "<{{workflowUrl}}|{{workflow}}>"
     short: true
