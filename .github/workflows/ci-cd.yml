@@ -90,6 +90,9 @@ jobs:
     needs: build_and_test # the deploy job will wait until the build_and_test job is completed successfully.
     runs-on: [springboot-aws-ec2]
 
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
     steps:
       # Step 1: Send notification
       - name: slack - GitHub Actions Slack integration
