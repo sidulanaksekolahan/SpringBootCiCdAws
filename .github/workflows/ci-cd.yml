@@ -105,27 +105,27 @@ jobs:
       # Step 1: Stop docker compose
       - name: Stop docker compose
         id: stop_docker_compose
-        run: docker compose down
+        run: sudo docker compose down
 
       # Step 2: Remove old docker image
       - name: Remove old Docker image
         id: remove_old_image
         run: |
-          IMAGE_ID=$(docker images -q mirfanduri/springbootcicdaws:latest)
+          IMAGE_ID=$(sudo docker images -q mirfanduri/springbootcicdaws:latest)
           if [ -n "$IMAGE_ID" ]; then
             echo "Removing old image: $IMAGE_ID"
-            docker rmi $IMAGE_ID || true  # 'true' to ignore error if image doesn't exist
+            sudo docker rmi $IMAGE_ID || true  # 'true' to ignore error if image doesn't exist
           fi
 
       # Step 3: Pull image from Docker Hub
       - name: Pull image from Docker Hub
         id: pull_docker_image
-        run: docker pull mirfanduri/springbootcicdaws:latest
+        run: sudo docker pull mirfanduri/springbootcicdaws:latest
 
       # Step 4: Run docker compose using environment file
       - name: Run docker compose
         id: run_docker_compose
-        run: docker compose --env-file .env up -d
+        run: sudo docker compose --env-file .env up -d
 
       # Step 11: Send completed notification
       - name: slack - GitHub Actions Slack integration
