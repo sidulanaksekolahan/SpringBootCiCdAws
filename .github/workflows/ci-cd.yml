@@ -18,7 +18,6 @@ jobs:
         uses: act10ns/slack@v2.1.0
         with:
           status: ${{ job.status }}
-          steps: ${{ toJson(steps) }}
           matrix: ${{ toJson(matrix) }}
           message: Building docker images...
         if: always() # To ensure the Slack message is sent even if the job fails
