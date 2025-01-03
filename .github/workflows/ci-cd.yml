@@ -88,7 +88,7 @@ jobs:
 
   deploy:
     needs: build_and_test # the deploy job will wait until the build_and_test job is completed successfully.
-    runs-on: [springboot-aws-ec2]
+    runs-on: [SpringBootGitHubActionNew]
 
     env:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
