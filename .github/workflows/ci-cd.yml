@@ -17,9 +17,10 @@ jobs:
       - name: slack - GitHub Actions Slack integration
         uses: act10ns/slack@v2.1.0
         with:
-          status: ${{ job.status }}
-          message: Building docker image begins...
-        if: always() # To ensure the Slack message is sent even if the job fails
+          status: starting
+          channel: '#springboot-cicd-github-aws'
+          message: Starting Docker Build and Push...
+          if: always() # To ensure the Slack message is sent even if the job fails
 
       # Step 2: Checkout the code from the repository
       - name: Checkout code
@@ -73,7 +74,9 @@ jobs:
       - uses: act10ns/slack@v2
         with:
           status: ${{ job.status }}
-        if: always()
+          steps: ${{ toJson(steps) }}
+          channel: '#springboot-cicd-github-aws'
+          if: always()
 
 #  deploy:
 #    needs: build_and_test # the deploy job will wait until the build_and_test job is completed successfully.
