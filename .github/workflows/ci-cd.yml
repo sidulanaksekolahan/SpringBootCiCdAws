@@ -13,7 +13,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
     steps:
-      # Step 1: Send starting notification
+      # Step 1: Send notification
       - name: slack - GitHub Actions Slack integration
         uses: act10ns/slack@v2.1.0
         with:
@@ -86,28 +86,49 @@ jobs:
           channel: '#workflows'
         if: always()
 
-#  deploy:
-#    needs: build_and_test # the deploy job will wait until the build_and_test job is completed successfully.
-#    runs-on: [springboot-aws-ec2]
-#
-#    steps:
-#      # Step 1: Stop docker compose
-#      - name: Stop docker compose
-#        run: docker compose down
-#
-#      # Step 2: Remove old docker image
-#      - name: Remove old Docker image
-#        run: |
-#          IMAGE_ID=$(docker images -q mirfanduri/springbootcicdaws:latest)
-#          if [ -n "$IMAGE_ID" ]; then
-#            echo "Removing old image: $IMAGE_ID"
-#            docker rmi $IMAGE_ID || true  # 'true' to ignore error if image doesn't exist
-#          fi
-#
-#      # Step 3: Pull image from Docker Hub
-#      - name: Pull image from Docker Hub
-#        run: docker pull mirfanduri/springbootcicdaws:latest
-#
-#      # Step 4: Run docker compose using environment file
-#      - name: Run docker compose
-#        run: docker compose --env-file .env up -d
+  deploy:
+    needs: build_and_test # the deploy job will wait until the build_and_test job is completed successfully.
+    runs-on: [springboot-aws-ec2]
+
+    steps:
+      # Step 1: Send notification
+      - name: slack - GitHub Actions Slack integration
+        uses: act10ns/slack@v2.1.0
+        with:
+          status: In progress
+          channel: '#workflows'
+        if: always() # To ensure the Slack message is sent even if the job fails
+
+      # Step 1: Stop docker compose
+      - name: Stop docker compose
+        id: stop_docker_compose
+        run: docker compose down
+
+      # Step 2: Remove old docker image
+      - name: Remove old Docker image
+        id: remove_old_image
+        run: |
+          IMAGE_ID=$(docker images -q mirfanduri/springbootcicdaws:latest)
+          if [ -n "$IMAGE_ID" ]; then
+            echo "Removing old image: $IMAGE_ID"
+            docker rmi $IMAGE_ID || true  # 'true' to ignore error if image doesn't exist
+          fi
+
+      # Step 3: Pull image from Docker Hub
+      - name: Pull image from Docker Hub
+        id: pull_docker_image
+        run: docker pull mirfanduri/springbootcicdaws:latest
+
+      # Step 4: Run docker compose using environment file
+      - name: Run docker compose
+        id: run_docker_compose
+        run: docker compose --env-file .env up -d
+
+      # Step 11: Send completed notification
+      - name: slack - GitHub Actions Slack integration
+        uses: act10ns/slack@v2.1.0
+        with:
+          status: ${{ job.status }}
+          steps: ${{ toJson(steps) }}
+          channel: '#workflows'
+        if: always()
