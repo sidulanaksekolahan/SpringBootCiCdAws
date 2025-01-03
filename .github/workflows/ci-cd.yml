@@ -14,10 +14,11 @@ jobs:
 
     steps:
       # Step 1: Send starting notification
-      - name: slack - GitHub Actions Slack integration - Kubmeta
-        uses: kubmeta/slack@v2.0.1
+      - name: slack - GitHub Actions Slack integration
+        uses: act10ns/slack@v2.1.0
         with:
           status: starting
+          steps: ${{ toJson(steps) }}
           channel: '#workflows'
           message: Starting Docker Build and Push...
         if: always() # To ensure the Slack message is sent even if the job fails
@@ -71,8 +72,8 @@ jobs:
          docker push ${{ secrets.DOCKER_USERNAME }}/springbootcicdaws:latest
 
       # Step 11: Send completed notification
-      - name: slack - GitHub Actions Slack integration - Kubmeta
-        uses: kubmeta/slack@v2.0.1
+      - name: slack - GitHub Actions Slack integration
+        uses: act10ns/slack@v2.1.0
         with:
           status: ${{ job.status }}
           steps: ${{ toJson(steps) }}
