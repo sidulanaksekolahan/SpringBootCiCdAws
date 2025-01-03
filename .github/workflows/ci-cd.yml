@@ -30,7 +30,7 @@ jobs:
       - name: slack - GitHub Actions Slack integration
         uses: act10ns/slack@v2.1.0
         with:
-          status: ${{ job.status }}
+          status: In progress
           channel: '#workflows'
           message: Starting Docker Build and Push...
         if: always() # To ensure the Slack message is sent even if the job fails
