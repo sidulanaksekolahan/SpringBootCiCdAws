@@ -46,7 +46,7 @@ jobs:
                         "elements": [
                           {
                             "type": "text",
-                            "text": "Triggered via ${{ github.base_ref }} from branch ${{ github.ref_name }}",
+                            "text": "Triggered via ${{ github.base_ref }} from branch ${{ github.ref_name }} - ${{ github.head_ref }} - ${{ github.ref }} - ${{ github.repositoryUrl }} - ${{ github.triggering_actor }} - ${{ github.workflow }}",
                             "style": {
                               "bold": true
                             }
