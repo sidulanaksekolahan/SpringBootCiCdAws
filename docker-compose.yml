@@ -12,19 +12,19 @@ services:
     networks:
       - spring-mysql
 
-#  spring-boot:
-#    container_name: my-java-app
-##    build:
-##      context: .
-#    image: mirfanduri/springbootcicdaws:latest
-#    ports:
-#      - 8089:8080
-#    environment:
-#      SPRING_DATASOURCE_URL: ${DB_URL:-url}
-#      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-username}
-#      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-password}
-#    networks:
-#      - spring-mysql
+  spring-boot:
+    container_name: my-java-app
+#    build:
+#      context: .
+    image: ${IMAGE_SPRINGBOOT_CICD}
+    ports:
+      - 8089:8080
+    environment:
+      SPRING_DATASOURCE_URL: ${DB_URL:-url}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-username}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-password}
+    networks:
+      - spring-mysql
 
 volumes:
   mysql-data:
