@@ -31,7 +31,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       # Step 4: Cache Maven dependencies (optional for faster builds)
       - name: Cache Maven Dependencies
@@ -47,7 +47,7 @@ jobs:
       # Step 5: Run Unit Tests
       - name: Run tests
         id: run_testing
-        run: mvn test
+        run: mvn test -Ptest
 
       # Step 6: Build the JAR file
       - name: Build JAR file
