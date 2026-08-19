@@ -1,4 +1,5 @@
-FROM eclipse-temurin:21-jre
+#FROM eclipse-temurin:21-jre
+FROM public.ecr.aws/docker/library/eclipse-temurin:21-jre
 WORKDIR /app
 COPY target/*.jar app.jar
 EXPOSE 8080
