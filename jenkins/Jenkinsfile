@@ -141,4 +141,174 @@ pipeline {
             }
         }
     }
+
+    // post {
+    //     success {
+    //         withCredentials([
+    //             string(
+    //                 credentialsId: 'slack-token',
+    //                 variable: 'SLACK_TOKEN'
+    //             )
+    //         ]) {
+    //             sh '''
+    //                 curl -X POST \
+    //                     -H "Authorization: Bearer $SLACK_TOKEN" \
+    //                     -H "Content-Type: application/json; charset=utf-8" \
+    //                     --data '{"channel":"#deployment","text":"🟢 Jenkins SUCCESS"}' \
+    //                     https://slack.com/api/chat.postMessage
+    //             '''
+    //         }
+    //     }
+
+    //     failure {
+    //         withCredentials([
+    //             string(
+    //                 credentialsId: 'slack-token',
+    //                 variable: 'SLACK_TOKEN'
+    //             )
+    //         ]) {
+    //             sh '''
+    //                 curl -X POST \
+    //                     -H "Authorization: Bearer $SLACK_TOKEN" \
+    //                     -H "Content-Type: application/json; charset=utf-8" \
+    //                     --data '{"channel":"#deployment","text":"🔴 Jenkins FAILED"}' \
+    //                     https://slack.com/api/chat.postMessage
+    //             '''
+    //         }
+    //     }
+    // }
+
+    post {
+    success {
+        withCredentials([
+            string(
+                credentialsId: 'slack-token',
+                variable: 'SLACK_TOKEN'
+            )
+        ]) {
+            sh '''
+                cat > slack_payload.json <<EOF
+    {
+    "channel": "#deployment",
+    "text": "Jenkins deployment SUCCESS",
+    "blocks": [
+        {
+            "type": "header",
+            "text": {
+                "type": "plain_text",
+                "text": "🟢 Deployment SUCCESS"
+            }
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": "*Job:*\\\\n${JOB_NAME}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": "*Build:*\\\\n#${BUILD_NUMBER}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": "*Image:*\\\\n\\`${FULL_IMAGE:-unknown}\\`"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": "*Environment:*\\\\nDocker Swarm"
+                }
+            ]
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Deployment berhasil dilakukan oleh Jenkins."
+            }
+        }
+    ]
+}
+EOF
+
+                curl -sS -f -X POST \
+                    -H "Authorization: Bearer $SLACK_TOKEN" \
+                    -H "Content-Type: application/json; charset=utf-8" \
+                    --data @slack_payload.json \
+                    https://slack.com/api/chat.postMessage
+
+                rm -f slack_payload.json
+            '''
+        }
+    }
+
+    failure {
+        withCredentials([
+            string(
+                credentialsId: 'slack-token',
+                variable: 'SLACK_TOKEN'
+            )
+        ]) {
+            sh '''
+                cat > slack_payload.json <<EOF
+{
+    "channel": "#deployment",
+    "text": "Jenkins deployment FAILED",
+    "blocks": [
+        {
+            "type": "header",
+            "text": {
+                "type": "plain_text",
+                "text": "🔴 Deployment FAILED"
+            }
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": "*Job:*\\\\n${JOB_NAME}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": "*Build:*\\\\n#${BUILD_NUMBER}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": "*Image:*\\\\n\\`${FULL_IMAGE:-unknown}\\`"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": "*Environment:*\\\\nDocker Swarm"
+                }
+            ]
+        },
+        {
+            "type": "divider"
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Deployment gagal dilakukan oleh Jenkins."
+            }
+        }
+    ]
+}
+EOF
+
+                curl -sS -f -X POST \
+                    -H "Authorization: Bearer $SLACK_TOKEN" \
+                    -H "Content-Type: application/json; charset=utf-8" \
+                    --data @slack_payload.json \
+                    https://slack.com/api/chat.postMessage
+
+                rm -f slack_payload.json
+            '''
+        }
+    }
+}
 }
