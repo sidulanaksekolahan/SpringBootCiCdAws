@@ -1,0 +1,144 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git(
+                    url: 'https://github.com/sidulanaksekolahan/SpringBootCiCdAws.git',
+                    branch: 'master',
+                )
+
+                // sh '''
+                //     echo "Commit:"
+                //     git rev-parse HEAD
+
+                //     echo "Short commit:"
+                //     git rev-parse --short HEAD
+
+                //     echo "Branch:"
+                //     git branch --show-current
+                // '''
+            }
+        }
+
+        stage('Verify') {
+            steps {
+                sh '''
+                    echo "Repository berhasil di-checkout"
+                    echo "Current directory:"
+                    pwd
+
+                    echo "Files:"
+                    ls -la
+                '''
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh '''
+                    chmod +x mvnw
+                    ./mvnw test "-Dspring.profiles.active=test"
+                '''
+            }
+        }
+
+        stage('Build Jar') {
+            steps {
+                sh './mvnw clean package -DskipTests'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    def commit = sh(
+                        script: 'git rev-parse --short HEAD',
+                        returnStdout: true
+                    ).trim()
+
+                def branch = sh(
+                        script: 'git branch --show-current',
+                        returnStdout: true
+                    ).trim()
+
+                env.FULL_IMAGE = "mirfanduri/thymeleafdemo:${branch}-${commit}"
+
+                sh 'docker build -t ${FULL_IMAGE} .'
+
+                echo "Docker image: ${FULL_IMAGE}"
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: 'dockerhub',
+                            usernameVariable: 'DOCKER_USERNAME',
+                            passwordVariable: 'DOCKER_PASSWORD'
+                        )
+                    ]) {
+
+                        sh '''
+                            echo "$DOCKER_PASSWORD" | docker login \
+                                -u "$DOCKER_USERNAME" \
+                                --password-stdin
+
+                            docker push "$FULL_IMAGE"
+
+                            docker logout
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Test SSH') {
+            steps {
+                sshagent(['swarm-manager-ssh']) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no \
+                            nofrets.poai@10.122.11.51 \
+                            "docker node ls"
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sshagent(['swarm-manager-ssh']) {
+                    sh '''
+                        # scp docker-compose.yml \
+                        #    ubuntu@192.168.1.20:/opt/springboot/
+
+                        # ssh ubuntu@192.168.1.20 \
+                        #    "docker stack deploy \
+                        #    -c /opt/springboot/docker-compose.yml \
+                        #    springbootthymeleaf"
+
+                        ssh -o StrictHostKeyChecking=no \
+                            nofrets.poai@10.122.11.51 \
+                            "cd /home/nofrets.poai/jenkins/cicd_test && \
+                             ls -la && \
+                             sed -i 's|^IMAGE_SPRINGBOOT_CICD=.*|IMAGE_SPRINGBOOT_CICD=${FULL_IMAGE}|' .env && \
+                             cat .env && \
+                             set -a && \
+                             . ./.env && \
+                             set +a && \
+                             docker stack deploy \
+                                --with-registry-auth \
+                                 --compose-file docker-compose.yml \
+                                 thymeleafdemo"
+
+
+                    '''
+                }
+            }
+        }
+    }
+}
